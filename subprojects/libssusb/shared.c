@@ -74,6 +74,8 @@ enumerate_devices(void)
         return (const char **)devices_ptr_list;
 }
 #else
+#include <ftdi.h>
+
 struct ftdi_context ftdi_ctx;
 int ftdi_error = 0;
 #endif /* !HAVE_LIBFTD2XX */

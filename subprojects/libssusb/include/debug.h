@@ -5,8 +5,8 @@
  * Israel Jacquez <mrkotfw@gmail.com>
  */
 
-#ifndef DEBUG_H_
-#define DEBUG_H_
+#ifndef LIBSSUSB_DEBUG_H_
+#define LIBSSUSB_DEBUG_H_
 
 #ifdef DEBUG
 #include <stdio.h>
@@ -31,4 +31,4 @@
 #define DEBUG_HEXDUMP(...)
 #endif /* DEBUG */
 
-#endif /* !DEBUG_H_ */
+#endif /* !LIBSSUSB_DEBUG_H_ */

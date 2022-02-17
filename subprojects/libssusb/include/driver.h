@@ -5,10 +5,12 @@
  * Israel Jacquez <mrkotfw@gmail.com>
  */
 
-#ifndef DRIVER_H_
-#define DRIVER_H_
+#ifndef LIBSSUSB_DRIVER_H_
+#define LIBSSUSB_DRIVER_H_
 
 #include <inttypes.h>
+
+struct fifo;
 
 struct device_driver {
         const char *name;
@@ -16,6 +18,11 @@ struct device_driver {
         int (*init)(void);
         int (*shutdown)(void);
         const char *(*error_stringify)(void);
+
+        int (*test_rx_fifo)(void);
+        const struct fifo *(*peek_rx_fifo)(void);
+
+        int (*fast_read)(void *buffer, uint32_t len);
 
         int (*read)(void *buffer, uint32_t len);
         int (*send)(void *buffer, uint32_t len);
@@ -27,4 +34,4 @@ struct device_driver {
         int (*execute_file)(const char *input_file, uint32_t base_address);
 };
 
-#endif /* !DRIVER_H_ */
+#endif /* !LIBSSUSB_DRIVER_H_ */

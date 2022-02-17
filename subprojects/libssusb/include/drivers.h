@@ -5,8 +5,8 @@
  * Israel Jacquez <mrkotfw@gmail.com>
  */
 
-#ifndef DRIVERS_H_
-#define DRIVERS_H_
+#ifndef LIBSSUSB_DRIVERS_H_
+#define LIBSSUSB_DRIVERS_H_
 
 #include "driver.h"
 
@@ -18,4 +18,4 @@
 
 extern const struct device_driver *device_drivers[];
 
-#endif /* !DRIVERS_H_ */
+#endif /* !LIBSSUSB_DRIVERS_H_ */
