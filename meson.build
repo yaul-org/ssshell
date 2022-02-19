@@ -19,6 +19,9 @@ project_dependencies = [
 build_args = [
 ]
 
+link_args = [
+]
+
 # Target
 
 build_args += [
@@ -30,6 +33,6 @@ project_target = executable(
   meson.project_name(),
   project_source_files,
   dependencies: project_dependencies,
-  install : true,
-  c_args : build_args,
+  install: true,
+  c_args: build_args,
 )
