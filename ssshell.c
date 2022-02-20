@@ -20,11 +20,11 @@ main(int argc, char *argv[])
         }
         fflush(stdout);
 
-        ret = ssusb_drivers_select("datalink");
+        if (argc == 3) {
+        ret = ssusb_drivers_select(argv[1]);
         assert(ret == SSUSB_OK);
 
-        if (argc >= 2) {
-                ssusb_execute_file(argv[1], 0x06004000);
+                ssusb_execute_file(argv[2], 0x06004000);
         }
 
         ssusb_deinit();
