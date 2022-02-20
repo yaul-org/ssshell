@@ -6,7 +6,10 @@
 int
 main(int argc, char *argv[])
 {
-        ssusb_init();
+        ssusb_ret_t ret;
+
+        ret = ssusb_init();
+        assert(ret == SSUSB_OK);
 
         const ssusb_driver_t *driver;
         ssusb_drivers_list_get(&driver);
@@ -15,10 +18,9 @@ main(int argc, char *argv[])
                 (void)printf("%s\n", driver->name);
                 driver = driver->next;
         }
+        fflush(stdout);
 
-        ssusb_ret_t ret;
-
-        ret = ssusb_drivers_select("usb-cart");
+        ret = ssusb_drivers_select("datalink");
         assert(ret == SSUSB_OK);
 
         if (argc >= 2) {
