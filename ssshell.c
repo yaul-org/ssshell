@@ -36,9 +36,7 @@ main(int argc, char *argv[])
 
         if (argc == 2) {
                 if (selected) {
-                        printf("%s\n", argv[1]);
                         ret = ssusb_execute_file(argv[1], 0x06004000);
-                        printf("----------------> [1;31m%i[m\n", ret);
                         assert(ret == SSUSB_OK);
                 }
         }
