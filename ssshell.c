@@ -16,13 +16,13 @@ main(int argc, char *argv[])
 
         if (ret == SSUSB_OK) {
                 if (argc == 2) {
-                        ret = ssusb_upload_file(argv[1], 0x06004000);
+                        ret = ssusb_file_upload(argv[1], 0x06004000);
                         assert(ret == SSUSB_OK);
 
                         /* ret = ssusb_execute_file(argv[1], 0x06004000); */
                         /* assert(ret == SSUSB_OK); */
                 } else {
-                        ret = ssusb_download_file("bios.rom", 0x00000000, 524288);
+                        ret = ssusb_file_download("bios.rom", 0x00000000, 524288);
                         assert(ret == SSUSB_OK);
                 }
         }
