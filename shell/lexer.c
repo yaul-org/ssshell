@@ -2,6 +2,8 @@
  * Copyright (c) 2020 Marc Kirchner
  * MIT License (MIT).
  * https://github.com/mkirchner/stutter
+ *
+ * Copyright (c) 2022 Israel Jacquez (modifications)
  */
 
 #include "lexer.h"
@@ -337,9 +339,6 @@ lexer_token_get(lexer_t *l)
 
                 case LEXER_STATE_NUMBER:
                         switch(c) {
-                                _ungetc(l, c);
-                                l->state = LEXER_STATE_ZERO;
-                                return _token_make(l, LEXER_TOK_INTEGER, buffer);
                         case '\n':
                         case '\t':
                         case '\r':
@@ -361,9 +360,6 @@ lexer_token_get(lexer_t *l)
 
                 case LEXER_STATE_NUMBER_BASE16:
                         switch(c) {
-                                _ungetc(l, c);
-                                l->state = LEXER_STATE_ZERO;
-                                return _token_make(l, LEXER_TOK_INTEGER, buffer);
                         case '\n':
                         case '\t':
                         case '\r':

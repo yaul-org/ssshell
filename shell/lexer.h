@@ -2,6 +2,8 @@
  * Copyright (c) 2020 Marc Kirchner
  * MIT License (MIT).
  * https://github.com/mkirchner/stutter
+ *
+ * Copyright (c) 2022 Israel Jacquez (modifications)
  */
 
 #ifndef SHELL_LEXER_H
