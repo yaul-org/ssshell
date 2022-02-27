@@ -41,7 +41,7 @@ _echo(const parser_t *parser)
 const command_t command_echo = {
         .name        = "echo",
         .description = "Prints to console",
-        .help        = "",
+        .help        = "...",
         .func        = _echo,
         .arg_count   = -1
 };
