@@ -23,6 +23,7 @@ project_source_files = [
 
   'commands.c',
   'commands/clear.c',
+  'commands/dseld.c',
   'commands/help.c',
   'commands/quit.c',
 ]

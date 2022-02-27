@@ -10,6 +10,7 @@
 extern const command_t command_help;
 extern const command_t command_quit;
 extern const command_t command_clear;
+extern const command_t command_dseld;
 
 static const char *_command_status_convert(commands_status_t status);
 
@@ -17,6 +18,7 @@ const command_t *commands[SHELL_COMMAND_COUNT] = {
         &command_help,
         &command_quit,
         &command_clear,
+        &command_dseld,
         NULL
 };
 
@@ -110,6 +112,8 @@ _command_status_convert(commands_status_t status)
                 return "Invalid type. Expected type Integer";
         case COMMANDS_STATUS_ARGC_MISMATCH:
                 return "Mismatch in argument count";
+        case COMMANDS_STATUS_ERROR:
+                return "Error";
         default:
                 assert(false);
         }

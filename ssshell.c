@@ -11,6 +11,7 @@
 
 #include <ssusb.h>
 
+#include "ssshell.h"
 #include "commands.h"
 #include "shell.h"
 #include "parser.h"
@@ -25,6 +26,15 @@ main(int argc, char *argv[])
 {
         (void)argc;
         (void)argv;
+
+        ssusb_ret_t ret;
+        ret = ssusb_init();
+
+        if (ret != SSUSB_OK) {
+                ssusb_deinit();
+
+                return 1;
+        }
 
         _state.running = true;
 
@@ -89,12 +99,7 @@ main(int argc, char *argv[])
 
         parser_delete(parser);
 
-        /* ssusb_ret_t ret; */
-
-        /* ret = ssusb_init(); */
-        /* assert(ret == SSUSB_OK); */
-
-        /* ret = ssusb_drivers_detect_select(); */
+        ssusb_deinit();
 
         /* if (ret == SSUSB_OK) { */
         /*         if (argc == 2) { */
@@ -108,8 +113,6 @@ main(int argc, char *argv[])
         /*                 assert(ret == SSUSB_OK); */
         /*         } */
         /* } */
-
-        /* ssusb_deinit(); */
 
         return _state.exit_code;
 }

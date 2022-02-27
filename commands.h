@@ -32,6 +32,8 @@ typedef enum {
         COMMANDS_STATUS_EXPECTED_INTEGER,
 
         COMMANDS_STATUS_ARGC_MISMATCH,
+
+        COMMANDS_STATUS_ERROR,
 } commands_status_t;
 
 void commands_init(void);
