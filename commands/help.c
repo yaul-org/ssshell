@@ -39,8 +39,7 @@ static void
 _help_arg1(const parser_t *parser)
 {
         if (parser->stream->args_obj[0]->type != OBJECT_TYPE_SYMBOL) {
-                commands_status_set(COMMANDS_STATUS_EXPECTED_SYMBOL);
-                return;
+                commands_status_return(COMMANDS_STATUS_EXPECTED_SYMBOL);
         }
 
         const char * const command_name =
@@ -63,8 +62,6 @@ _help_arg1(const parser_t *parser)
 static void
 _help(const parser_t *parser)
 {
-        (void)parser;
-
         switch(parser->stream->argc) {
         case 0:
                 _help_arg0(parser);
@@ -73,8 +70,7 @@ _help(const parser_t *parser)
                 _help_arg1(parser);
                 break;
         default:
-                commands_status_set(COMMANDS_STATUS_ARGC_MISMATCH);
-                break;
+                commands_status_return(COMMANDS_STATUS_ARGC_MISMATCH);
         }
 }
 

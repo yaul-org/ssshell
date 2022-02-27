@@ -9,6 +9,11 @@
 
 #define SHELL_COMMAND_COUNT 256
 
+#define commands_status_return(_status) do {                                   \
+        commands_status_set(_status);                                          \
+        return;                                                                \
+} while (0)
+
 typedef void (*command_func_t)(const parser_t *parser);
 
 struct command {

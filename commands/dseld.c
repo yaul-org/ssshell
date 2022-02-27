@@ -17,7 +17,7 @@ _dseld(const parser_t *parser)
 
         if (ret != SSUSB_OK) {
                 commands_printf("Unable to detect and select driver\n");
-                commands_status_set(COMMANDS_STATUS_ERROR);
+                commands_status_return(COMMANDS_STATUS_ERROR);
         }
 }
 
