@@ -11,15 +11,15 @@
 
 const char *token_type_names[] = {
         "LEXER_TOK_ERROR",
-        "LEXER_TOK_INT",
+        "LEXER_TOK_INTEGER",
         "LEXER_TOK_STRING",
         "LEXER_TOK_SYMBOL",
         "LEXER_TOK_EOF"
 };
 
-static char *_symbol_chars = "!&*+-0123456789<=>?@"
-                             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                             "abcdefghijklmnopqrstuvwxyz";
+static const char *_symbol_chars = "!&*+-0123456789<=>?@"
+                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                   "abcdefghijklmnopqrstuvwxyz";
 
 typedef enum {
         KEY_BEL =  7,
@@ -116,12 +116,20 @@ static token_t *
 _token_make(const lexer_t *l, const token_type_t token_type, const char *buf)
 {
         token_t *tok = (token_t *) malloc(sizeof(token_t));
-        if (tok) {
+
+        if (tok != NULL) {
                 tok->type = token_type;
                 tok->column = l->char_no;
+
                 switch(token_type) {
                 case LEXER_TOK_INTEGER:
-                        tok->as.integer = atoi(buf);
+                        if (((strchr(buf, 'x')) == (buf + 1)) ||
+                            ((strchr(buf, 'X')) == (buf + 1))) {
+                                /* Skip '0x','0X','#x','#X' */
+                                tok->as.integer = strtol(buf + 2, NULL, 16);
+                        } else {
+                                tok->as.integer = strtol(buf, NULL, 10);
+                        }
                         break;
                 case LEXER_TOK_STRING:
                 case LEXER_TOK_ERROR:
@@ -133,30 +141,37 @@ _token_make(const lexer_t *l, const token_type_t token_type, const char *buf)
                         break;
                 }
         }
+
         return tok;
 }
 
 token_t *
 lexer_token_get(lexer_t *l)
 {
-        char buf[1024] = {0};
-        size_t bufpos = 0;
+        char buffer[1024] = { 0 };
+        size_t buffer_pos;
+        buffer_pos = 0;
         int c;
         char *pos;
+
         while ((c = _getc(l)) != EOF) {
                 switch (l->state) {
                 case LEXER_STATE_ZERO:
                         switch(c) {
                         case '\"':
-                                /* don't put c in the buffer */
+                                /* Don't put c in the buffer */
                                 l->state = LEXER_STATE_STRING;
                                 break;
-                                /* start  number */
-                        case '0' ... '9':
-                                buf[bufpos++] = c;
+                                /* Start number */
+                        case '0':
+                                buffer[buffer_pos++] = c;
+                                l->state = LEXER_STATE_NUMBER_PREFIX;
+                                break;
+                        case '1' ... '9':
+                                buffer[buffer_pos++] = c;
                                 l->state = LEXER_STATE_NUMBER;
                                 break;
-                                /* start a symbol */
+                                /* Start a symbol */
                         case 'a' ... 'z':
                         case 'A' ... 'Z':
                         case '+':
@@ -166,14 +181,18 @@ lexer_token_get(lexer_t *l)
                         case '=':
                         case '>':
                         case '&':
-                                buf[bufpos++] = c;
+                                buffer[buffer_pos++] = c;
                                 l->state = LEXER_STATE_SYMBOL;
                                 break;
                         case '-':
-                                buf[bufpos++] = c;
+                                buffer[buffer_pos++] = c;
                                 l->state = LEXER_STATE_MINUS;
                                 break;
-                                /* eat whitespace */
+                        case '#':
+                                buffer[buffer_pos++] = c;
+                                l->state = LEXER_STATE_INTEGER_BASE16;
+                                break;
+                                /* Eat whitespace */
                         case ' ':
                         case '\r':
                         case '\t':
@@ -181,18 +200,18 @@ lexer_token_get(lexer_t *l)
                         case '\0':
                                 break;
                         default:
-                                buf[bufpos++] = c;
-                                return _token_make(l, LEXER_TOK_ERROR, buf);
+                                buffer[buffer_pos++] = c;
+                                return _token_make(l, LEXER_TOK_ERROR, buffer);
                         }
                         break;
 
                 case LEXER_STATE_MINUS:
-                        /* This one is a little finicky since we want to allow for
-                         * symbols that start with a dash ("-main"), negative numbers
-                         * (-1, -2.4, -.7), and the subtraction operator (- 3 1). */
+                        /* This one is a little finicky since we want to allow
+                         * for symbols that start with a dash ("-main"),
+                         * negative numbers (-1) */
                         switch(c) {
                         case '0' ... '9':
-                                buf[bufpos++] = c;
+                                buffer[buffer_pos++] = c;
                                 l->state = LEXER_STATE_NUMBER;
                                 break;
                         case 'a' ... 'z':
@@ -206,117 +225,180 @@ lexer_token_get(lexer_t *l)
                                 _ungetc(l, c);
                                 l->state = LEXER_STATE_SYMBOL;
                                 break;
-                                /* minus symbol */
+                                /* Minus symbol */
                         case ' ':
                         case '\r':
                         case '\t':
                                 l->state = LEXER_STATE_ZERO;
-                                return _token_make(l, LEXER_TOK_SYMBOL, buf);
-                                break;
+                                return _token_make(l, LEXER_TOK_SYMBOL, buffer);
                         case '\n':
                                 l->state = LEXER_STATE_ZERO;
-                                return _token_make(l, LEXER_TOK_SYMBOL, buf);
-                                break;
-                                /* error */
+                                return _token_make(l, LEXER_TOK_SYMBOL, buffer);
+                                /* Error */
                         default:
-                                buf[bufpos++] = c;
-                                return _token_make(l, LEXER_TOK_ERROR, buf);
+                                buffer[buffer_pos++] = c;
+                                return _token_make(l, LEXER_TOK_ERROR, buffer);
 
+                        }
+                        break;
+
+                case LEXER_STATE_INTEGER_BASE16:
+                        switch (c) {
+                        case 'x':
+                        case 'X':
+                                buffer[buffer_pos++] = c;
+                                break;
+                        case '0' ... '9':
+                        case 'a' ... 'f':
+                        case 'A' ... 'F':
+                                buffer[buffer_pos++] = c;
+                                l->state = LEXER_STATE_NUMBER_BASE16;
+                                break;
+                        default:
+                                buffer[buffer_pos++] = c;
+                                return _token_make(l, LEXER_TOK_ERROR, buffer);
                         }
                         break;
 
                 case LEXER_STATE_STRING:
                         if (c != '\"') {
                                 if (c == '\\') {
-                                        l->state = LEXER_STATE_ESCAPESTRING;
+                                        l->state = LEXER_STATE_ESCAPE_STRING;
                                         break;
                                 }
-                                buf[bufpos++] = c;
+                                buffer[buffer_pos++] = c;
                         } else {
                                 /* don't put c in the buffer */
                                 l->state = LEXER_STATE_ZERO;
-                                return _token_make(l, LEXER_TOK_STRING, buf);
+                                return _token_make(l, LEXER_TOK_STRING, buffer);
                         }
                         break;
 
-                case LEXER_STATE_ESCAPESTRING:
-                        /* supports all C escape sequences except for hex and octal */
+                case LEXER_STATE_ESCAPE_STRING:
+                        /* Supports all C escape sequences except for hex and octal */
                         switch(c) {
                         case '\n':
-                                /* ignore escaped line feeds */
+                                /* Ignore escaped line feeds */
                                 break;
                         case '\\':
                         case '"':
-                                /* keep the char and go back to string processing */
-                                buf[bufpos++] = c;
+                                /* Keep the char and go back to string processing */
+                                buffer[buffer_pos++] = c;
                                 break;
                         case 'a':
-                                buf[bufpos++] = KEY_BEL;
+                                buffer[buffer_pos++] = KEY_BEL;
                                 break;
                         case 'b':
-                                buf[bufpos++] = KEY_BS;
+                                buffer[buffer_pos++] = KEY_BS;
                                 break;
                         case 'f':
-                                buf[bufpos++] = KEY_FF;
+                                buffer[buffer_pos++] = KEY_FF;
                                 break;
                         case 'n':
-                                buf[bufpos++] = KEY_LF;
+                                buffer[buffer_pos++] = KEY_LF;
                                 break;
                         case 'r':
-                                buf[bufpos++] = KEY_CR;
+                                buffer[buffer_pos++] = KEY_CR;
                                 break;
                         case 't':
-                                buf[bufpos++] = KEY_HT;
+                                buffer[buffer_pos++] = KEY_HT;
                                 break;
                         case 'v':
-                                buf[bufpos++] = KEY_VT;
+                                buffer[buffer_pos++] = KEY_VT;
                                 break;
                         default:
-                                /* Invalid escape sequeence. Keep the sequence and go
-                                 * back to string processing */
-                                buf[bufpos++] = '\\';
+                                /* Invalid escape sequeence. Keep the sequence
+                                 * and go back to string processing */
+                                buffer[buffer_pos++] = '\\';
                                 _ungetc(l, c);
                                 break;
                         }
                         l->state = LEXER_STATE_STRING;
                         break;
 
+                case LEXER_STATE_NUMBER_PREFIX:
+                        switch(c) {
+                        case 'x':
+                        case 'X':
+                                buffer[buffer_pos++] = c;
+                                break;
+                        case '0' ... '9':
+                        case 'a' ... 'f':
+                        case 'A' ... 'F':
+                                buffer[buffer_pos++] = c;
+                                l->state = LEXER_STATE_NUMBER_BASE16;
+                                break;
+                        default:
+                                /* Error */
+                                buffer[buffer_pos++] = c;
+                                return _token_make(l, LEXER_TOK_ERROR, buffer);
+                        }
+                        break;
+
                 case LEXER_STATE_NUMBER:
                         switch(c) {
                                 _ungetc(l, c);
                                 l->state = LEXER_STATE_ZERO;
-                                return _token_make(l, LEXER_TOK_INTEGER, buf);
+                                return _token_make(l, LEXER_TOK_INTEGER, buffer);
                         case '\n':
                         case '\t':
                         case '\r':
                         case ' ':
                                 l->state = LEXER_STATE_ZERO;
-                                return _token_make(l, LEXER_TOK_INTEGER, buf);
+                                return _token_make(l, LEXER_TOK_INTEGER, buffer);
                         case '0' ... '9':
-                                buf[bufpos++] = c;
+                                buffer[buffer_pos++] = c;
                                 break;
                         case '\0':
                                 l->state = LEXER_STATE_ZERO;
-                                return _token_make(l, LEXER_TOK_INTEGER, buf);
+                                return _token_make(l, LEXER_TOK_INTEGER, buffer);
                         default:
-                                /* error */
-                                buf[bufpos++] = c;
-                                return _token_make(l, LEXER_TOK_ERROR, buf);
+                                /* Error */
+                                buffer[buffer_pos++] = c;
+                                return _token_make(l, LEXER_TOK_ERROR, buffer);
                         }
                         break;
+
+                case LEXER_STATE_NUMBER_BASE16:
+                        switch(c) {
+                                _ungetc(l, c);
+                                l->state = LEXER_STATE_ZERO;
+                                return _token_make(l, LEXER_TOK_INTEGER, buffer);
+                        case '\n':
+                        case '\t':
+                        case '\r':
+                        case ' ':
+                                l->state = LEXER_STATE_ZERO;
+                                return _token_make(l, LEXER_TOK_INTEGER, buffer);
+                        case '0' ... '9':
+                        case 'a' ... 'f':
+                        case 'A' ... 'F':
+                                buffer[buffer_pos++] = c;
+                                break;
+                        case '\0':
+                                l->state = LEXER_STATE_ZERO;
+                                return _token_make(l, LEXER_TOK_INTEGER, buffer);
+                        default:
+                                /* Error */
+                                buffer[buffer_pos++] = c;
+                                return _token_make(l, LEXER_TOK_ERROR, buffer);
+                        }
+                        break;
+
                 case LEXER_STATE_SYMBOL:
                         pos = strchr(_symbol_chars, c);
                         if (pos != NULL) {
-                                buf[bufpos++] = c;
+                                buffer[buffer_pos++] = c;
                         } else {
                                 _ungetc(l, c);
                                 l->state = LEXER_STATE_ZERO;
-                                return _token_make(l, LEXER_TOK_SYMBOL, buf);
+                                return _token_make(l, LEXER_TOK_SYMBOL, buffer);
                         }
                         break;
+
                 default:
-                        buf[bufpos++] = c;
-                        return _token_make(l, LEXER_TOK_ERROR, buf);
+                        buffer[buffer_pos++] = c;
+                        return _token_make(l, LEXER_TOK_ERROR, buffer);
                 }
         }
         /* Acceptance states */
@@ -325,11 +407,11 @@ lexer_token_get(lexer_t *l)
                 return _token_make(l, LEXER_TOK_EOF, NULL);
         case LEXER_STATE_NUMBER:
                 l->state = LEXER_STATE_ZERO;
-                return _token_make(l, LEXER_TOK_INTEGER, buf);
+                return _token_make(l, LEXER_TOK_INTEGER, buffer);
         case LEXER_STATE_SYMBOL:
                 l->state = LEXER_STATE_ZERO;
-                return _token_make(l, LEXER_TOK_SYMBOL, buf);
+                return _token_make(l, LEXER_TOK_SYMBOL, buffer);
         default:
-                return _token_make(l, LEXER_TOK_ERROR, buf);
+                return _token_make(l, LEXER_TOK_ERROR, buffer);
         }
 }

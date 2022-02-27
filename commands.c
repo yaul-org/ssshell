@@ -12,6 +12,7 @@ extern const command_t command_quit;
 extern const command_t command_clear;
 extern const command_t command_dseld;
 extern const command_t command_exec;
+extern const command_t command_echo;
 
 static const char *_command_status_convert(commands_status_t status);
 
@@ -21,6 +22,7 @@ const command_t *commands[SHELL_COMMAND_COUNT] = {
         &command_exec,
         &command_help,
         &command_quit,
+        &command_echo,
         NULL
 };
 

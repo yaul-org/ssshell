@@ -27,6 +27,7 @@ project_source_files = [
   'commands/help.c',
   'commands/quit.c',
   'commands/exec.c',
+  'commands/echo.c',
 ]
 
 libssusb_proj = subproject('libssusb')

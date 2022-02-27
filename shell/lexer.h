@@ -38,10 +38,13 @@ typedef struct {
 typedef enum {
         LEXER_STATE_ZERO,
         LEXER_STATE_NUMBER,
+        LEXER_STATE_NUMBER_PREFIX,
+        LEXER_STATE_NUMBER_BASE16,
         LEXER_STATE_SYMBOL,
         LEXER_STATE_STRING,
-        LEXER_STATE_ESCAPESTRING,
-        LEXER_STATE_MINUS
+        LEXER_STATE_ESCAPE_STRING,
+        LEXER_STATE_MINUS,
+        LEXER_STATE_INTEGER_BASE16,
 } lexer_state_t;
 
 typedef struct {
