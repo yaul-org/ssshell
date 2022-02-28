@@ -85,7 +85,7 @@ env_get(const char *symbol, env_pair_t *pair)
                 return false;
         }
 
-        pair->value = env_entry->env_pair.value;
+        *pair = env_entry->env_pair;
 
         return true;
 }
@@ -100,6 +100,17 @@ env_value_get(const char *symbol)
         }
 
         return pair.value;
+}
+
+void
+env_traverse(env_traverse_func_t func)
+{
+        assert(func != NULL);
+
+        env_entry_t *env_np;
+        TAILQ_FOREACH (env_np, &_environment, entries) {
+                func(&env_np->env_pair);
+        }
 }
 
 static env_entry_t *

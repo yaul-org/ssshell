@@ -31,6 +31,56 @@ object_new(object_type_t type)
         return object;
 }
 
+object_t *
+object_integer_new(int value)
+{
+        object_t * const object = object_new(OBJECT_TYPE_INTEGER);
+
+        object->as.integer = value;
+
+        return object;
+}
+
+object_t *
+object_string_new(char *value)
+{
+        assert(value != NULL);
+
+        object_t * const object = object_new(OBJECT_TYPE_STRING);
+
+        object->as.string = value;
+
+        return object;
+}
+
+object_t *
+object_string_copy_new(char *value)
+{
+        assert(value != NULL);
+
+        return object_string_new(strdup(value));
+}
+
+object_t *
+object_symbol_new(char *value)
+{
+        assert(value != NULL);
+
+        object_t * const object = object_new(OBJECT_TYPE_SYMBOL);
+
+        object->as.symbol = value;
+
+        return object;
+}
+
+object_t *
+object_symbol_copy_new(char *value)
+{
+        assert(value != NULL);
+
+        return object_symbol_new(strdup(value));
+}
+
 void
 object_delete(object_t *object)
 {

@@ -43,6 +43,10 @@ main(int argc, char *argv[])
         shell_init();
         shell_prompt_set("> ");
 
+        env_put("*lwram*", object_integer_new(0x20200000));
+        env_put("*hwram*", object_integer_new(0x26000000));
+        env_put("*boot*", object_integer_new(0x26004000));
+
         parser_t * const parser = parser_new();
 
         while (_state.running) {
@@ -79,17 +83,21 @@ main(int argc, char *argv[])
                 const char * const command_name = env_pair->symbol;
                 const object_t * const command_obj = env_pair->value;
 
-                const command_t * const command = command_obj->as.command;
-
-                /* If the argument count is -1, it's variadic */
-                if ((command->arg_count >= 0) &&
-                    (command->arg_count != parser->stream->argc)) {
-                        (void)printf("Mismatch in arguments passed to \"%s\". Expected %i, got %i\n",
-                            command_name,
-                            command->arg_count,
-                            parser->stream->argc);
+                if (command_obj->type != OBJECT_TYPE_COMMAND) {
+                        printf("Expected a command\n");
                 } else {
-                        command->func(parser);
+                        const command_t * const command = command_obj->as.command;
+
+                        /* If the argument count is -1, it's variadic */
+                        if ((command->arg_count >= 0) &&
+                            (command->arg_count != parser->stream->argc)) {
+                                (void)printf("Mismatch in arguments passed to \"%s\". Expected %i, got %i\n",
+                                    command_name,
+                                    command->arg_count,
+                                    parser->stream->argc);
+                        } else {
+                                command->func(parser);
+                        }
                 }
         }
 

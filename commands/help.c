@@ -11,27 +11,55 @@ _help_arg0(const parser_t *parser)
 
         const command_t **command;
 
-        size_t max_length;
-        max_length = 7;
+        size_t name_max_len;
+        name_max_len = 7;
+
+        size_t alias_max_len;
+        alias_max_len = 5;
 
         for (command = &commands[0]; *command != NULL; command++) {
-                const size_t name_length = strlen((*command)->name);
-                max_length = (name_length > max_length) ? name_length : max_length;
+                const char * const name = (*command)->name;
+                const size_t name_len = strlen(name);
+
+                const char * const alias = (*command)->alias;
+                const size_t alias_len = (alias != NULL) ? strlen(alias) : 0;
+
+                name_max_len = (name_len > name_max_len) ? name_len : name_max_len;
+                alias_max_len = (alias_len > alias_max_len) ? alias_len : alias_max_len;
         }
 
-        commands_printf("%*s ARGC DESCRIPTION\n", (int)max_length, "COMMAND");
+        commands_printf("| COMMAND%*s | ALIAS | ARGC | DESCRIPTION\n", (int)name_max_len - 7, " ");
+        commands_printf("|-");
+        for (size_t i = 0; i < name_max_len; i++) {
+                putchar('-');
+        }
+        commands_printf("-+-------+------+------------\n");
+
         for (command = &commands[0]; *command != NULL; command++) {
-                const int space_diff = (int)max_length - strlen((*command)->name) + 1;
+                const char * const name = (*command)->name;
+                const size_t name_len = strlen(name);
 
-                commands_printf("%s%*s", (*command)->name, space_diff, "");
+                const char * const alias = (*command)->alias;
+                const size_t alias_len = (alias != NULL) ? strlen(alias) : 0;
 
-                if (((*command)->arg_count) < 0) {
-                        commands_printf("*");
+                const int name_spacediff = (int)name_max_len - name_len + 1;
+                const int alias_spacediff = (int)alias_max_len - alias_len + 1;
+
+                commands_printf("| %s%*s", name, name_spacediff, "");
+
+                if (alias != NULL) {
+                        commands_printf("| %s%*s", alias, alias_spacediff, "");
                 } else {
-                        commands_printf("%i", (*command)->arg_count);
+                        commands_printf("| %*s", alias_spacediff, " ");
                 }
 
-                commands_printf("    %s\n", (*command)->description);
+                if (((*command)->arg_count) < 0) {
+                        commands_printf("| *");
+                } else {
+                        commands_printf("| %i", (*command)->arg_count);
+                }
+
+                commands_printf("    | %s\n", (*command)->description);
         }
 }
 
@@ -45,18 +73,32 @@ _help_arg1(const parser_t *parser)
         const char * const command_name =
             parser->stream->args_obj[0]->as.symbol;
 
-        const command_t * const command = commands_find(command_name);
+        const command_t *command;
+        command = commands_find(command_name);
 
         if (command == NULL) {
-                commands_printf("Command \"%s\" not found\n", command_name);
-        } else {
-                commands_printf("Usage: %s", command_name);
-
-                if (command->help != NULL) {
-                        commands_printf(" %s", command->help);
+                /* It might be an alias */
+                env_pair_t pair;
+                if (!(env_get(command_name, &pair))) {
+                        commands_printf("Command \"%s\" not found\n", command_name);
+                        commands_status_return(COMMANDS_STATUS_ERROR);
                 }
-                commands_printf("\n");
+
+                const object_t * const command_obj = pair.value;
+
+                if (command_obj->type != OBJECT_TYPE_COMMAND) {
+                        commands_status_return(COMMANDS_STATUS_EXPECTED_SYMBOL);
+                }
+
+                command = command_obj->as.command;
         }
+
+        commands_printf("Usage: %s", command_name);
+
+        if (command->help != NULL) {
+                commands_printf(" %s", command->help);
+        }
+        commands_printf("\n");
 }
 
 static void

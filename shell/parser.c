@@ -78,16 +78,13 @@ _rule_arg(parser_t *parser)
 
         switch (token->type) {
         case LEXER_TOK_SYMBOL:
-                object = object_new(OBJECT_TYPE_SYMBOL);
-                object->as.symbol = strdup(LEXER_TOKEN_VAL_AS_STR(token));
+                object = object_symbol_copy_new(LEXER_TOKEN_VAL_AS_STR(token));
                 break;
         case LEXER_TOK_STRING:
-                object = object_new(OBJECT_TYPE_STRING);
-                object->as.string = strdup(LEXER_TOKEN_VAL_AS_STR(token));
+                object = object_string_copy_new(LEXER_TOKEN_VAL_AS_STR(token));
                 break;
         case LEXER_TOK_INTEGER:
-                object = object_new(OBJECT_TYPE_INTEGER);
-                object->as.integer = LEXER_TOKEN_VAL_AS_INT(token);
+                object = object_integer_new(LEXER_TOKEN_VAL_AS_INT(token));
                 break;
         default:
                 object = NULL;

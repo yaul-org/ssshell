@@ -11,17 +11,25 @@ extern const command_t command_help;
 extern const command_t command_quit;
 extern const command_t command_clear;
 extern const command_t command_dseld;
+extern const command_t command_upload;
+extern const command_t command_download;
+extern const command_t command_xxd;
 extern const command_t command_exec;
 extern const command_t command_echo;
+extern const command_t command_env;
 
 static const char *_command_status_convert(commands_status_t status);
 
 const command_t *commands[SHELL_COMMAND_COUNT] = {
         &command_help,
         &command_clear,
+        &command_env,
         &command_echo,
         &command_dseld,
         &command_exec,
+        &command_upload,
+        &command_download,
+        &command_xxd,
         &command_quit,
         NULL
 };
@@ -73,6 +81,8 @@ commands_deinit(void)
 const command_t *
 commands_find(const char *name)
 {
+        assert(name != NULL);
+
         const command_t **command;
         command = &commands[0];
 
