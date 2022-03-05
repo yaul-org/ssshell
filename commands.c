@@ -125,6 +125,12 @@ _command_status_convert(commands_status_t status)
                 return "Invalid type. Expected type Integer";
         case COMMANDS_STATUS_ARGC_MISMATCH:
                 return "Mismatch in argument count";
+        case COMMANDS_STATUS_INSUFFICIENT_MEMORY:
+                return "Insufficient memory";
+        case COMMANDS_STATUS_INVALID_ADDRESS:
+                return "Invalid address";
+        case COMMANDS_STATUS_INVALID_SIZE:
+                return "Invalid size";
         case COMMANDS_STATUS_ERROR:
                 return "Error";
         default:

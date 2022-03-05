@@ -11,12 +11,6 @@
 static void
 _download(const parser_t *parser)
 {
-        (void)parser;
-
-        if (parser->stream->argc != 2) {
-                commands_status_return(COMMANDS_STATUS_ARGC_MISMATCH);
-        }
-
         const object_t * const address_obj = parser->stream->args_obj[0];
         const object_t * const path_obj = parser->stream->args_obj[1];
         const object_t * const size_obj = parser->stream->args_obj[2];
