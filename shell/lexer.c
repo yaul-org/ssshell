@@ -185,6 +185,7 @@ lexer_token_get(lexer_t *l)
                         case '&':
                         case '.':
                         case '^':
+                        case '?':
                                 buffer[buffer_pos++] = c;
                                 l->state = LEXER_STATE_SYMBOL;
                                 break;

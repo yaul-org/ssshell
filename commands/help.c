@@ -118,6 +118,7 @@ _help(const parser_t *parser)
 
 const command_t command_help = {
         .name        = "help",
+        .alias       = "?",
         .description = "Help",
         .help        = "[command]",
         .func        = _help,
