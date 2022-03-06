@@ -11,6 +11,10 @@
 static void
 _download(const parser_t *parser)
 {
+        if (parser->stream->argc != 3) {
+                commands_status_return(COMMANDS_STATUS_ARGC_MISMATCH);
+        }
+
         const object_t * const address_obj = parser->stream->args_obj[0];
         const object_t * const path_obj = parser->stream->args_obj[1];
         const object_t * const size_obj = parser->stream->args_obj[2];
@@ -44,7 +48,7 @@ const command_t command_download = {
         .name        = "download",
         .alias       = "<",
         .description = "Download a binary at a valid Saturn address",
-        .help        = "<address:int> <path:str>",
+        .help        = "<address:int> <path:str> <size:int>",
         .func        = _download,
-        .arg_count   = 2
+        .arg_count   = 3
 };
