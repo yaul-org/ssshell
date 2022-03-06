@@ -131,6 +131,10 @@ _command_status_convert(commands_status_t status)
                 return "Invalid address";
         case COMMANDS_STATUS_INVALID_SIZE:
                 return "Invalid size";
+        case COMMANDS_STATUS_FILE_NOT_FOUND:
+                return "File not found";
+        case COMMANDS_STATUS_NOT_A_FILE:
+                return "Not a file";
         case COMMANDS_STATUS_ERROR:
                 return "Error";
         default:
