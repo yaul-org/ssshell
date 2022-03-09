@@ -1,0 +1,4 @@
+[wrap-git]
+directory = libssusb
+url = https://github.com/ijacquez/libssusb.git
+revision = head

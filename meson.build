@@ -8,7 +8,9 @@ project(
   'ssshell',
   'c',
   version: '0.0.1',
-  default_options: ['warning_level=3']
+  default_options: [
+    'warning_level=3'
+  ]
 )
 
 cc = meson.get_compiler('c')
@@ -34,8 +36,12 @@ project_source_files = [
   'commands/env.c',
 ]
 
-libssusb_proj = subproject('libssusb')
-libssusb_dep = libssusb_proj.get_variable('libssusb_dep')
+libssusb_dep = dependency('libssusb', required: false)
+
+if not libssusb_dep.found()
+  libssusb_proj = subproject('libssusb')
+  libssusb_dep = libssusb_proj.get_variable('libssusb_dep')
+endif
 
 if get_option('readline-provider') == 'readline'
   libreadline_dep = cc.find_library('readline', required: true)

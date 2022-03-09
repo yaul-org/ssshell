@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <ssusb.h>
+#include <ssusb/ssusb.h>
 
 #include "ssshell.h"
 #include "commands.h"

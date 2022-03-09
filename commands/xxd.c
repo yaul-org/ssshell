@@ -5,7 +5,7 @@
 
 #include <ssshell.h>
 
-#include <ssusb.h>
+#include <ssusb/ssusb.h>
 
 #include "types.h"
 #include "commands.h"

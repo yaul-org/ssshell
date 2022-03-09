@@ -6,7 +6,7 @@
 #include "commands.h"
 #include "parser.h"
 
-#include <ssusb.h>
+#include <ssusb/ssusb.h>
 
 static void
 _dseld(const parser_t *parser)
