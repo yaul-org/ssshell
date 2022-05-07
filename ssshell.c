@@ -98,6 +98,8 @@ main(int argc, char *argv[])
                         } else {
                                 command->func(parser);
                         }
+
+                        shell_history_add(&line);
                 }
         }
 

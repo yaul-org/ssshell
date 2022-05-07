@@ -15,6 +15,8 @@ line_t shell_line_get(void);
 
 void shell_readline(void);
 
+void shell_history_add(const line_t *line);
+
 void shell_clear(void);
 
 #endif /* SHELL_SHELL_H */

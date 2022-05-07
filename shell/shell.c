@@ -5,10 +5,13 @@
 #include <string.h>
 #include <unistd.h>
 
+
 #if defined(HAVE_READLINE)
 #include <readline/readline.h>
+#include <readline/history.h>
 #elif defined(HAVE_EDITLINE)
 #include <editline/readline.h>
+#include <editline/history.h>
 #endif
 
 #include "shell.h"
@@ -122,6 +125,14 @@ shell_readline(void)
         } else {
                 _line.buffer[0] = '\0';
                 _line.size = 0;
+        }
+}
+
+void
+shell_history_add(const line_t *line)
+{
+        if (line->buffer[0] != ' ') {
+                add_history(line->buffer);
         }
 }
 
