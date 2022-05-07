@@ -77,10 +77,12 @@ include_directories = [
 # Target
 
 if host_machine.system() == 'windows'
-  project_source_files += 'shell/conio.c'
+  project_source_files += 'shell/platform/windows/shell.c'
   # MinGW doesn't include sys/queue.h in its base. Unfortunately, we have to
   # include it ourselves
   include_directories += include_directories('support')
+else
+  project_source_files += 'shell/platform/shell.c'
 endif
 
 build_args += [

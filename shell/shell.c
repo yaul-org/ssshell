@@ -5,8 +5,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "conio.h"
-
 #if defined(HAVE_READLINE)
 #include <readline/readline.h>
 #elif defined(HAVE_EDITLINE)
@@ -16,6 +14,12 @@
 #include "shell.h"
 
 #define SHELL_PROMPT_SIZE (16)
+
+void __shell_init(void);
+void __shell_deinit(void);
+void __shell_signal_set(void (*handler)(int));
+void __shell_signal_clear(void);
+void __shell_clear(void);
 
 static char _prompt[SHELL_PROMPT_SIZE + 1];
 
@@ -53,6 +57,8 @@ shell_init(void)
                 return;
         }
 
+        __shell_init();
+
         rl_initialize();
         rl_clear_signals();
 }
@@ -64,6 +70,8 @@ shell_deinit(void)
                 free(_line.buffer);
                 _line.buffer = NULL;
         }
+
+        __shell_deinit();
 }
 
 const char *
@@ -88,29 +96,11 @@ shell_line_get(void)
 void
 shell_readline(void)
 {
-#if defined(HAVE_READLINE)
-#if !defined(_WIN32)
-        struct sigaction sa = {
-                .sa_handler = _sigint_handler
-        };
-
-        struct sigaction old;
-
-        sigaction(SIGINT, &sa, &old);
-#else
-        signal(SIGBREAK, _sigint_handler);
-#endif /* _WIN32 */
-#endif /* HAVE_READLINE */
+        __shell_signal_set(_sigint_handler);
 
         char * const rline = readline(_prompt);
 
-#if defined(HAVE_READLINE)
-#if !defined(_WIN32)
-        sigaction(SIGINT, &old, NULL);
-#else
-        signal(SIGBREAK, NULL);
-#endif /* _WIN32 */
-#endif /* HAVE_READLINE */
+        __shell_signal_clear();
 
         if ((rline != NULL) && (*rline != '\0')) {
                 const size_t rsize = (strlen(rline)) + 1;
@@ -140,11 +130,5 @@ shell_clear(void)
 {
         rl_replace_line("", 0);
 
-#ifdef _WIN32
-        clrscr();
-        rl_redisplay();
-#else
-        rl_clear_screen(0, 0);
-        rl_clear_visible_line();
-#endif /* _WIN32 */
+        __shell_clear();
 }
