@@ -7,10 +7,11 @@
 project(
   'ssshell',
   'c',
-  version: '0.0.1',
+  version: run_command('cat', 'VERSION', check: true).stdout().strip(),
   default_options: [
     'warning_level=3'
-  ]
+  ],
+  meson_version: '>=0.57.0'
 )
 
 cc = meson.get_compiler('c')
