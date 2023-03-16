@@ -37,7 +37,7 @@ project_source_files = [
   'commands/env.c',
 ]
 
-libssusb_dep = dependency('libssusb', required: false)
+libssusb_dep = dependency('libssusb-1.0.0', required: true)
 
 if not libssusb_dep.found()
   libssusb_proj = subproject('libssusb')

@@ -1,4 +1,8 @@
 [wrap-git]
 directory = libssusb
 url = https://github.com/ijacquez/libssusb.git
-revision = head
+depth = 1
+revision = 1.0.0
+
+[provide]
+libssusb-1.0.0 = libssusb_dep
