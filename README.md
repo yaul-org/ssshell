@@ -41,6 +41,16 @@
     sudo rmmod ftdi_sio
     sudo rmmod usbserial
 
+### Notes about Windows
+
+  The following DLL files need to be copied:
+
+    cp /mingw64/bin/libusb-1.0.dll \
+       /mingw64/bin/libftdi1.dll \
+       /mingw64/bin/libreadline8.dll \
+       /mingw64/bin/libtermcap-0.dll \
+       /path/to/bin/
+
 ## Issues
 
   Found a bug or do you have a suggestion to make `ssshell` even better than it
